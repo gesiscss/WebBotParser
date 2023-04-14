@@ -1,6 +1,7 @@
 # WebBotParser
 
-This repository adds basic parsing capabilities for search engine results scraped with [WebBot](https://github.com/gesiscss/WebBot). With this package, you can parse search result pages saved from Google, DuckDuckGo, etc. using WebBot's [download capabilities](https://github.com/gesiscss/WebBot#-saving-search-results), or obtained through a different method for further analysis.
+WebBotParser is a Python package that adds basic parsing capabilities for search engine results scraped with our browser extension [WebBot](https://github.com/gesiscss/WebBot).
+With WebBotParser, you can parse search result pages saved from Google, DuckDuckGo, etc. using WebBot's [download capabilities](https://github.com/gesiscss/WebBot#-saving-search-results), or obtained through a different method for further analysis.
 
 The following engines and search result types are currently supported out of the box:
 
@@ -11,17 +12,15 @@ The following engines and search result types are currently supported out of the
 | **Yahoo**      | ✓    | ✓    | ✓
 | **Baidu**      | ✓    | ✓
 
-For examplary usage, see [example.ipynb](./example.ipynb).
-
 ## Installation
 
 For basic usage, simply clone this repository, or directly download [webbotparser/webbotparser.py](./webbotparser/webbotparser.py) and add the script to your working directory.
 
 ### Install the package with pip
 
-If you want to use the WebBotParser over multiple projects/directories, you can also install it as a Python package. Simply run
+If you want to use WebBotParser over multiple projects/directories, you can also install it as a Python package. Simply run
 ```
-pip install git+https://github.com/gesiscss/WebBot-tutorials
+pip install git+https://github.com/gesiscss/WebBotParser
 ```
 The `webbotparser` package is then available globally in your respective Python installation.
 
@@ -39,7 +38,9 @@ Then, you can obtain the search results as a pandas DataFrame and metadata as a 
 ```
 metadata, results = parser.get_results(file='path/to/the/result_page.html')
 ```
-Furthermore, `parser.get_metadata(file)` can be used to only extract the metadata. `parser.get_results_from_dir(dir)` allows to directly extract search results spread over multiple pages, as Google text result are provided for instance. For examples also see [example.ipynb](./example.ipynb).
+Furthermore, `parser.get_metadata(file)` can be used to only extract the metadata. `parser.get_results_from_dir(dir)` allows to directly extract search results spread over multiple pages, as Google text result are provided for instance.
+
+For more details and examples also see [WebBot tutorials](https://github.com/gesiscss/WebBot-tutorials).
 
 ## Extracting images
 
@@ -88,6 +89,13 @@ from webbotparser import GoogleParser
 metadata_extractor = GoogleParser.google_metadata
 ```
 
-## Alternatives
+## Related projects
 
-[WebSearcher](https://github.com/gitronald/WebSearcher) is a Python package that facilitates obtaining and parsing search results from Google text search. Compared to `webbotparser`, it supports parsing more diverse results (ads, knowledge boxes, etc.), but only Google text results (for now). [websearcher.ipynb](./websearcher.ipynb) illustrates how to utilize WebSearcher's parsing capabilities on search result pages obtained using WebBot.
+* [WebBot](https://github.com/gesiscss/WebBot) is a browser extension for retrieving search engine results.
+* [webbotparseR](https://github.com/schochastics/webbotparseR) is a similar R package for parsing WebBot results.
+* [WebBot tutorials](https://github.com/gesiscss/WebBot-tutorials) contains tutorials of WebBot and parsing.
+* [WebSearcher](https://github.com/gitronald/WebSearcher) is a Python package that facilitates obtaining and parsing search results from Google text search. Compared to WebBotParser, it supports parsing more diverse results (ads, knowledge boxes, etc.), but only Google text results (for now).
+
+## Author
+
+[Georg Ahnert](https://github.com/wanLo)
