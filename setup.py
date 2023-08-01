@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(
-    author='Georg Ahnert',
+    author='Georg Ahnert, Jun Sun',
     description='Basic parsing capabilities for search engine results scraped with WebBot',
     name='webbotparser',
-    version='0.1.0',
+    version='0.1.1',
     license='MIT',
     packages=['webbotparser'],
     install_requires=[

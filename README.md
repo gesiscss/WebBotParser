@@ -19,7 +19,7 @@ For basic usage, simply clone this repository, or directly download [webbotparse
 ### Install the package with pip
 
 If you want to use WebBotParser over multiple projects/directories, you can also install it as a Python package. Simply run
-```
+```sh
 pip install git+https://github.com/gesiscss/WebBotParser
 ```
 The `webbotparser` package is then available globally in your respective Python installation.
@@ -27,15 +27,15 @@ The `webbotparser` package is then available globally in your respective Python 
 ## Usage
 
 For the search engines and result types supported out of the box, simply run
-```
+```python
 from webbotparser import WebBotParser
 ```
 and initialize the WebBotParser for the search engine and result type your are investigating, for example
-```
+```python
 parser = WebBotParser(engine = 'DuckDuckGo News')
 ```
 Then, you can obtain the search results as a pandas DataFrame and metadata as a Python dictionary with
-```
+```python
 metadata, results = parser.get_results(file='path/to/the/result_page.html')
 ```
 Furthermore, `parser.get_metadata(file)` can be used to only extract the metadata. `parser.get_results_from_dir(dir)` allows to directly extract search results spread over multiple pages, as Google text result are provided for instance.
@@ -45,7 +45,7 @@ For more details and examples also see [WebBot tutorials](https://github.com/ges
 ## Extracting images
 
 WebBot archives images inline in the html file of the search results, i.e., they are neither external files on your drive nor fetched from the original source on viewing the downloaded search results page. This allows us to extract the images directly from the html file for further analysis. The engines and result types supported out of the box with WebBotParser allow for extracting images as well. Simply initialize `WebBotParser` as follows:
-```
+```python
 parser = WebBotParser(engine = 'Google Video', extract_images=True)
 ```
 You can optionally specify `extract_images_prefix`, `extract_images_format`, and `extract_images_to_dir`. See `example.ipynb` for more details, including preview in Jupyter Notebooks.
@@ -53,7 +53,7 @@ You can optionally specify `extract_images_prefix`, `extract_images_format`, and
 ## Custom result types
 
 WebBotParser out of the box only provides support for some search engines and result types. Even these parsers might stop working if the search engine providers decide to change their layout. However, WebBotParser can still be used in these cases by defining a custom `result_selector`, `queries`, and optionally a `metadata_extractor` function. In this case, a WebBotParser is initiated with these instead of with the `engine` attribute
-```
+```python
 parser = WebBotParser(queries, result_selector, metadata_extractor)
 ```
 
@@ -64,7 +64,7 @@ Under the hood, WebBotParser uses [BeautifulSoup](https://beautiful-soup-4.readt
 3. For each of those results, extract available information through a list of queries
 
 See the below example for available types of queries and their usage
-```
+```python
 queries = [
     # extract the text from inside a matched element, getting all the text over all its children
     {'name': 'abc', 'type': 'text', 'selector': 'h3'},
@@ -84,7 +84,7 @@ queries = [
 ```
 
 You can optionally provide a `metadata_extractor(soup, file)` function to extract metadata alongside the search results, or import one of the existing extractors, e.g. with
-```
+```python
 from webbotparser import GoogleParser
 metadata_extractor = GoogleParser.google_metadata
 ```
@@ -96,6 +96,6 @@ metadata_extractor = GoogleParser.google_metadata
 * [WebBot tutorials](https://github.com/gesiscss/WebBot-tutorials) contains tutorials of WebBot and parsing.
 * [WebSearcher](https://github.com/gitronald/WebSearcher) is a Python package that facilitates obtaining and parsing search results from Google text search. Compared to WebBotParser, it supports parsing more diverse results (ads, knowledge boxes, etc.), but only Google text results (for now).
 
-## Author
+## Authors
 
-[Georg Ahnert](https://github.com/wanLo)
+[Georg Ahnert](https://github.com/wanLo), [Jun Sun](https://github.com/yfiua)

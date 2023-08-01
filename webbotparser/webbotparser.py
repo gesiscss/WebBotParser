@@ -26,7 +26,11 @@ class WebBotParser:
         self.extract_images_to_dir = extract_images_to_dir
         self.extract_images_prefix = extract_images_prefix
         self.extract_images_format = extract_images_format
-        
+
+        # Check if the extract_images_to_dir exists, and if not, create it
+        if self.extract_images:
+            pathlib.Path(self.extract_images_to_dir).mkdir(parents=True, exist_ok=True)
+
         if engine is None and len(queries) == 0 and len(metadata_extractor(None, None)) == 0:
             raise Exception(self.__init__.__doc__)
         if engine is not None:
@@ -107,8 +111,8 @@ class WebBotParser:
         """Only extract the metadata from an archived search results page."""
         soup = self.__get_soup(file)
         return self.metadata_extractor(soup, file)
-    
-    
+
+
     def get_results(self, file, with_metadata = True):
         """Extract the search results and optionally metadata from an archived search results page."""
 
@@ -117,7 +121,7 @@ class WebBotParser:
 
         metadata = {}
         if with_metadata: metadata = self.metadata_extractor(soup, file)
-        
+
         return (metadata, results)
 
 
@@ -125,7 +129,7 @@ class WebBotParser:
         """Extract search results from all archived search result pages in a given directory.\
  All pages should share the same search terms, engine, and result type.\
  This function helps in combining results spread over multiple pages, e.g. Google News results."""
-        
+
         metadata = {}
         results = pd.DataFrame()
 
@@ -163,7 +167,7 @@ class WebBotParser:
             soup = BeautifulSoup(fp, "lxml") # the integrated html parser had some problems with tables...
         return soup
 
-    
+
     def __evaluate_soup(self, soup):
         result_soups = soup.select(self.result_selector)
         _results = []
@@ -183,16 +187,16 @@ class WebBotParser:
         image.save(file, self.extract_images_format)
         return file
 
-    
+
     def __evaluate_query(self, query, result_soup):
         if (query['type'] == 'custom'):
-                return query['function'](result_soup)
+            return query['function'](result_soup)
         else:
             _res = result_soup.select(query['selector'])
 
             if (query['type'] == 'exists'):
                 return len(_res) > 0
-            
+
             elif (query['type'] == 'image'):
                 if (len(_res) > 0):
                     if 'title_label_selector' in query:
@@ -201,11 +205,14 @@ class WebBotParser:
                             , result_soup)
                     else:
                         title = self.__evaluate_query({'name': 'image_title', 'type': 'text', 'selector': query['title_selector']}, result_soup)
+
                     title = "".join(x for x in title if x.isalnum()) # make it a valid filename
                     file = f'{self.extract_images_to_dir}/{self.extract_images_prefix}_{title}.{self.extract_images_format.lower()}'
                     try:
                         return self.__extract_inline_image(_res[0]['src'], file) # some images might have coding issues
-                    except: return None
+                    except:
+                        warnings.warn("Couldn't extract image for '" + query['name'] + "'.", UserWarning, stacklevel=2)
+                        return None
                 else: return None
 
             elif (len(_res) == 0): warnings.warn("CSS selector for '" + query['name'] + "' didn't match.", UserWarning, stacklevel=2)
@@ -213,7 +220,7 @@ class WebBotParser:
 
             elif (query['type'] == 'text'):
                 return _res[0].get_text()
-            
+
             elif (query['type'] == 'attribute'):
                 return _res[0][query['attribute']]
 
@@ -242,11 +249,11 @@ class GoogleParser:
         {'name': 'link', 'type': 'attribute', 'selector': 'a', 'attribute': 'href'},
         {'name': 'text', 'type': 'text', 'selector': 'div.GI74Re'},
         {'name': 'source', 'type': 'text', 'selector': 'div.CEMjEf'},
-        {'name': 'has_image', 'type': 'exists', 'selector': 'div.FAkayc img'},
-        {'name': 'published', 'type': 'text', 'selector': 'div.OSrXXb'}
+        {'name': 'has_image', 'type': 'exists', 'selector': 'div.uhHOwf.BYbUcd img'},
+        {'name': 'published', 'type': 'text', 'selector': 'div.OSrXXb.ZE0LJd.YsWzw'}
     ]
     google_news_queries_with_images = google_news_queries + [
-        {'name': 'image', 'type': 'image', 'selector': 'div.FAkayc img', 'title_selector': 'div.mCBkyc'}
+        {'name': 'image', 'type': 'image', 'selector': 'div.uhHOwf.BYbUcd img', 'title_selector': 'div.mCBkyc'}
     ]
 
     google_images_result_selector = 'div.isv-r.PNCib.MSM1fd.BUooTd'
@@ -261,9 +268,12 @@ class GoogleParser:
 
     @staticmethod
     def get_date(_soup):
-        date = _soup.select('div.P7xzyf > span:last-child')[0].get_text()
-        try: date = pd.to_datetime(date, format="%d.%m.%Y")  # some dates are relative, we ignore them for now
-        except: date = None
+        try:
+            date = _soup.select('div.P7xzyf > span:last-child')[0].get_text()
+            date = pd.to_datetime(date, format="%d.%m.%Y")  # some dates are relative, we ignore them for now
+        except:
+            date = None
+
         return date
 
     @staticmethod
@@ -273,7 +283,7 @@ class GoogleParser:
             min_sec = duration[0].get_text().split(':')
             return pd.to_timedelta(int(min_sec[0])*60 + int(min_sec[1]), unit='seconds')
         return None
-    
+
     google_videos_result_selector = 'div.MjjYud'
     google_videos_queries = [
         {'name': 'title', 'type': 'text', 'selector': 'h3'},
@@ -372,7 +382,7 @@ class YahooParser:
             {'name': 'link', 'type': 'attribute', 'selector': 'h3.title > a', 'attribute': 'href'},
             {'name': 'text', 'type': 'text', 'selector': 'div.compText.aAbs'},
         ]
-    
+
     yahoo_news_result_selector = 'li > div.dd.NewsArticle'
     yahoo_news_queries = [
         {'name': 'title', 'type': 'text', 'selector': 'h4.s-title'},
@@ -404,7 +414,7 @@ class YahooParser:
         _page = int(soup.select('div.pages > strong')[0].get_text())
         _date = pd.to_datetime(file[-24:-5], format="%Y-%m-%d_%H_%M_%S")
         return {'result type': _result_type, 'engine': _engine, 'query': _query, 'page': _page, 'date': _date}
-    
+
     @staticmethod
     def yahoo_image_metadata(soup, file):
         file = pathlib.Path(file).name
@@ -448,7 +458,7 @@ class BaiduParser:
                 date = pd.to_datetime(date, format="%Y年%m月%d日")
             except: date = None
         return date
-    
+
     baidu_news_result_selector = 'div.c-container'
     baidu_news_queries = [
         {'name': 'title', 'type': 'text', 'selector': 'h3'},
